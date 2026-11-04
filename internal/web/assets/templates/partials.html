@@ -1,0 +1,45 @@
+{{define "txrow"}}
+<a class="tx" href="/tx/{{.ID}}/edit">
+  <span class="tx-dot {{.Direction}}">{{if eq .Direction "in"}}收{{else}}支{{end}}</span>
+  <span class="tx-body">
+    <span class="tx-title">{{.CategoryName}}{{if .CategoryName}}{{else}}未分类{{end}}{{if .ProjectName}}<span class="tag">{{.ProjectName}}</span>{{end}}</span>
+    <span class="tx-meta">{{datecn .OccurredOn}} {{weekdaycn .OccurredOn}}{{if .Counterparty}} · {{.Counterparty}}{{end}}{{if .Note}} · {{.Note}}{{end}}{{if .AttachmentCnt}} · 凭证 {{.AttachmentCnt}}{{end}}</span>
+  </span>
+  <span class="tx-amount {{.Direction}}">{{if eq .Direction "in"}}+{{else}}−{{end}}¥{{money .Amount}}</span>
+</a>
+{{end}}
+
+{{define "txrow-compact"}}
+<a class="tx" href="/tx/{{.ID}}/edit">
+  <span class="tx-dot {{.Direction}}">{{if eq .Direction "in"}}收{{else}}支{{end}}</span>
+  <span class="tx-body">
+    <span class="tx-title">{{.CategoryName}}{{if .CategoryName}}{{else}}未分类{{end}}{{if .ProjectName}}<span class="tag">{{.ProjectName}}</span>{{end}}</span>
+    <span class="tx-meta">{{if .Counterparty}}{{.Counterparty}}{{else}}—{{end}}{{if .Note}} · {{.Note}}{{end}}{{if .AttachmentCnt}} · 凭证 {{.AttachmentCnt}}{{end}}</span>
+  </span>
+  <span class="tx-amount {{.Direction}}">{{if eq .Direction "in"}}+{{else}}−{{end}}¥{{money .Amount}}</span>
+</a>
+{{end}}
+
+{{define "txrow-project"}}
+<a class="tx" href="/tx/{{.ID}}/edit">
+  <span class="tx-dot {{.Direction}}">{{if eq .Direction "in"}}收{{else}}支{{end}}</span>
+  <span class="tx-body">
+    <span class="tx-title">{{.CategoryName}}{{if .CategoryName}}{{else}}未分类{{end}}</span>
+    <span class="tx-meta">{{datecn .OccurredOn}} {{weekdaycn .OccurredOn}}{{if .Counterparty}} · {{.Counterparty}}{{end}}{{if .Note}} · {{.Note}}{{end}}{{if .AttachmentCnt}} · 凭证 {{.AttachmentCnt}}{{end}}</span>
+  </span>
+  <span class="tx-amount {{.Direction}}">{{if eq .Direction "in"}}+{{else}}−{{end}}¥{{money .Amount}}</span>
+</a>
+{{end}}
+
+{{define "empty"}}
+<div class="empty">
+  <div class="empty-mark">◌</div>
+  <p>{{.}}</p>
+</div>
+{{end}}
+
+{{define "monthform"}}
+<form class="month-form" method="get" action="{{.Action}}">
+  <input type="month" name="month" value="{{.Month}}" onchange="this.form.submit()" aria-label="选择月份">
+</form>
+{{end}}

@@ -1,0 +1,74 @@
+{{define "content"}}
+<div class="page-head">
+  <div>
+    <h1>{{.Project.Name}}</h1>
+    <p class="sub">
+      <span class="badge {{statustone .Project.Status}}">{{statuslabel .Project.Status}}</span>
+      {{if .Project.ClientName}} · 客户 {{.Project.ClientName}}{{end}}
+    </p>
+  </div>
+  <div class="head-actions">
+    <a class="btn" href="/tx/new?project={{.Project.ID}}">＋ 记一笔</a>
+    <a class="btn btn-ghost" href="/projects/{{.Project.ID}}/edit">编辑</a>
+  </div>
+</div>
+
+<div class="stat-grid stat-grid-4">
+  <div class="stat-card">
+    <span class="stat-label">合同金额</span>
+    <strong class="stat-value">¥{{money .Project.ContractAmount}}</strong>
+    <span class="stat-delta">{{if .Project.ManagerAmount}}总包 ¥{{money .Project.ManagerAmount}}{{else}}未填总包价{{end}}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">已收款</span>
+    <strong class="stat-value in">¥{{money .Project.In}}</strong>
+    <span class="stat-delta">{{if .Project.ContractAmount}}{{share .Project.In .Project.ContractAmount}}% 合同额已收{{else}}—{{end}}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">已付款</span>
+    <strong class="stat-value out">¥{{money .Project.Out}}</strong>
+    <span class="stat-delta">{{if .Project.ManagerAmount}}{{share .Project.Out .Project.ManagerAmount}}% 总包价已付{{else}}—{{end}}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">当前毛利</span>
+    <strong class="stat-value {{if neg .Project.Profit}}out{{else}}in{{end}}">¥{{money .Project.Profit}}</strong>
+    <span class="stat-delta">已收 − 已付</span>
+  </div>
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <header class="card-head"><h2>项目信息</h2></header>
+    <dl class="kv">
+      <div><dt>设计师</dt><dd>{{or .Project.Designer "—"}}</dd></div>
+      <div><dt>项目经理</dt><dd>{{or .Project.ManagerName "—"}}</dd></div>
+      <div><dt>开工日期</dt><dd>{{if .Project.StartDate}}{{datecn .Project.StartDate}}{{else}}—{{end}}</dd></div>
+      <div><dt>计划完工</dt><dd>{{if .Project.PlannedEndDate}}{{datecn .Project.PlannedEndDate}}{{else}}—{{end}}</dd></div>
+      <div><dt>实际完工</dt><dd>{{if .Project.ActualEndDate}}{{datecn .Project.ActualEndDate}}{{else}}—{{end}}</dd></div>
+      <div><dt>备注</dt><dd>{{or .Project.Note "—"}}</dd></div>
+    </dl>
+  </section>
+
+  <section class="card">
+    <header class="card-head"><h2>收支汇总</h2></header>
+    <dl class="kv">
+      <div><dt>收入笔数 / 支出笔数</dt><dd>{{len .Txs}} 笔</dd></div>
+      <div><dt>累计收入</dt><dd class="in">¥{{money .Summary.In}}</dd></div>
+      <div><dt>累计支出</dt><dd class="out">¥{{money .Summary.Out}}</dd></div>
+      <div><dt>结余</dt><dd class="{{if neg .Summary.Net}}out{{else}}in{{end}}">¥{{money .Summary.Net}}</dd></div>
+    </dl>
+  </section>
+</div>
+
+<section class="card">
+  <header class="card-head">
+    <h2>项目流水</h2>
+    <a class="link" href="/tx?project={{.Project.ID}}">在流水中筛选</a>
+  </header>
+  {{if .Txs}}
+    <div class="tx-list">{{range .Txs}}{{template "txrow-project" .}}{{end}}</div>
+  {{else}}
+    {{template "empty" "这个项目还没有流水，点右上角「记一笔」"}}
+  {{end}}
+</section>
+{{end}}

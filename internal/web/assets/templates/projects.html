@@ -1,0 +1,36 @@
+{{define "content"}}
+<div class="page-head">
+  <div>
+    <h1>项目</h1>
+    <p class="sub">{{.Active}} 个在建 · 累计已收 ¥{{money .TotalIn}} · 已付 ¥{{money .TotalOut}}</p>
+  </div>
+  <a class="btn btn-primary" href="/projects/new">＋ 新建项目</a>
+</div>
+
+{{if .Projects}}
+<div class="proj-grid">
+  {{range .Projects}}
+  <a class="proj-card" href="/projects/{{.ID}}">
+    <div class="proj-top">
+      <span class="proj-name">{{.Name}}</span>
+      <span class="badge {{statustone .Status}}">{{statuslabel .Status}}</span>
+    </div>
+    <div class="proj-meta">
+      {{if .ClientName}}客户 {{.ClientName}}{{else}}未填客户{{end}}
+      {{if .StartDate}} · 开工 {{datecn .StartDate}}{{end}}
+    </div>
+    <div class="proj-nums">
+      <div><span>合同</span><b>¥{{money .ContractAmount}}</b></div>
+      <div><span>已收</span><b class="in">¥{{money .In}}</b></div>
+      <div><span>已付</span><b class="out">¥{{money .Out}}</b></div>
+      <div><span>毛利</span><b class="{{if neg .Profit}}out{{else}}in{{end}}">¥{{money .Profit}}</b></div>
+    </div>
+  </a>
+  {{end}}
+</div>
+{{else}}
+<div class="card">
+  {{template "empty" "还没有项目。工程账本里建一个项目，就能按项目归集收支。"}}
+</div>
+{{end}}
+{{end}}

@@ -1,0 +1,87 @@
+{{define "content"}}
+<div class="page-head">
+  <div>
+    <h1>概览</h1>
+    <p class="sub">{{monthlabel .Month}} · {{.Book.Name}}</p>
+  </div>
+  <form class="month-form" method="get" action="/">
+    <input type="month" name="month" value="{{.Month}}" onchange="this.form.submit()" aria-label="选择月份">
+  </form>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <span class="stat-label">本月收入</span>
+    <strong class="stat-value in">¥{{money .Summary.In}}</strong>
+    <span class="stat-delta">{{if .Prev.In}}<span class="{{if gt .Summary.In .Prev.In}}up{{else if lt .Summary.In .Prev.In}}down{{end}}">{{pcttext .Summary.In .Prev.In}}%</span> 较上月{{else if .Summary.In}}本月首笔{{else}}—{{end}}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">本月支出</span>
+    <strong class="stat-value out">¥{{money .Summary.Out}}</strong>
+    <span class="stat-delta">{{if .Prev.Out}}<span class="{{if gt .Summary.Out .Prev.Out}}down{{else if lt .Summary.Out .Prev.Out}}up{{end}}">{{pcttext .Summary.Out .Prev.Out}}%</span> 较上月{{else if .Summary.Out}}本月首笔{{else}}—{{end}}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">本月结余</span>
+    <strong class="stat-value {{if neg .Summary.Net}}out{{else}}in{{end}}">¥{{money .Summary.Net}}</strong>
+    <span class="stat-delta">收入 − 支出</span>
+  </div>
+  <a class="stat-card stat-link" href="/tx?month={{.Month}}&dir=out&noproof=1">
+    <span class="stat-label">待补凭证</span>
+    <strong class="stat-value {{if .Pending}}warn{{end}}">{{.Pending}}<small>笔</small></strong>
+    <span class="stat-delta">{{if .Pending}}点击补传{{else}}全部齐了{{end}}</span>
+  </a>
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <header class="card-head">
+      <h2>本月支出构成</h2>
+      <a class="link" href="/reports?month={{.Month}}">看报表</a>
+    </header>
+    {{if .Cats}}
+      <div class="chart" data-chart="{{.CatJSON}}"></div>
+    {{else}}
+      {{template "empty" "本月还没有支出记录"}}
+    {{end}}
+  </section>
+
+  <section class="card">
+    <header class="card-head">
+      <h2>项目毛利 Top 3</h2>
+      <a class="link" href="/projects">全部项目</a>
+    </header>
+    {{if .Projects}}
+      <ul class="rank">
+        {{range .Projects}}
+        <li>
+          <a href="/projects/{{.ID}}">
+            <span class="rank-top">
+              <span class="rank-name">{{.Name}}</span>
+              <span class="badge {{statustone .Status}}">{{statuslabel .Status}}</span>
+            </span>
+            <span class="rank-val {{if neg .Profit}}out{{else}}in{{end}}">¥{{money .Profit}}</span>
+            <span class="rank-sub">已收 ¥{{money .In}} · 已付 ¥{{money .Out}}</span>
+          </a>
+        </li>
+        {{end}}
+      </ul>
+    {{else}}
+      {{template "empty" "此账本暂无项目数据；工程账本可按项目归集"}}
+    {{end}}
+  </section>
+</div>
+
+<section class="card">
+  <header class="card-head">
+    <h2>最近流水</h2>
+    <a class="link" href="/tx?month={{.Month}}">全部流水</a>
+  </header>
+  {{if .Recent}}
+    <div class="tx-list">
+      {{range .Recent}}{{template "txrow" .}}{{end}}
+    </div>
+  {{else}}
+    {{template "empty" "还没有记账，点「＋ 记一笔」开始"}}
+  {{end}}
+</section>
+{{end}}

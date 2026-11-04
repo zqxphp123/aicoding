@@ -1,0 +1,110 @@
+{{define "content"}}
+<div class="page-head">
+  <div>
+    <h1>{{if .IsEdit}}编辑流水{{else}}记一笔{{end}}</h1>
+    <p class="sub">{{.Book.Name}} · {{monthlabel .Month}}</p>
+  </div>
+  <a class="link" href="/tx?month={{.Month}}">返回流水</a>
+</div>
+
+{{if .Err}}<div class="alert" role="alert">{{.Err}}</div>{{end}}
+
+<form class="form card" method="post" action="{{if .IsEdit}}/tx/{{.Tx.ID}}{{else}}/tx{{end}}" enctype="multipart/form-data" data-tx-form>
+  <div class="seg seg-block" role="group" aria-label="收支类型" data-direction>
+    <label class="seg-item">
+      <input type="radio" name="direction" value="out" {{if ne .Tx.Direction "in"}}checked{{end}}>
+      <span>支出</span>
+    </label>
+    <label class="seg-item">
+      <input type="radio" name="direction" value="in" {{if eq .Tx.Direction "in"}}checked{{end}}>
+      <span>收入</span>
+    </label>
+  </div>
+
+  <div class="amount-box">
+    <label for="amount">金额</label>
+    <div class="amount-input">
+      <span>¥</span>
+      <input id="amount" name="amount" inputmode="decimal" autocomplete="off" placeholder="0.00"
+             value="{{amount .Tx.Amount}}" required {{if not .IsEdit}}autofocus{{end}}>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="occurred_on">日期</label>
+      <input type="date" id="occurred_on" name="occurred_on" value="{{.Tx.OccurredOn}}" required>
+    </div>
+    <div class="field">
+      <label for="category_id">分类</label>
+      <select id="category_id" name="category_id" data-category>
+        <option value="">未分类</option>
+        {{range .Categories}}
+        <option value="{{.ID}}" data-dir="{{.Direction}}" {{if eq .ID (pid $.Tx.CategoryID)}}selected{{end}}>{{.Name}}</option>
+        {{end}}
+      </select>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="project_id">归属项目</label>
+      <select id="project_id" name="project_id">
+        <option value="">不归属项目</option>
+        {{range .Projects}}
+        <option value="{{.ID}}" {{if eq .ID (pid $.Tx.ProjectID)}}selected{{end}}>{{.Name}}</option>
+        {{end}}
+      </select>
+    </div>
+    <div class="field">
+      <label for="pay_method">支付方式</label>
+      <select id="pay_method" name="pay_method">
+        <option value="">未填写</option>
+        {{range .PMethods}}
+        <option value="{{.}}" {{if eq . $.Tx.PayMethod}}selected{{end}}>{{.}}</option>
+        {{end}}
+      </select>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="counterparty">往来对象</label>
+      <input id="counterparty" name="counterparty" value="{{.Tx.Counterparty}}" placeholder="客户 / 商家 / 材料商，可不填">
+    </div>
+    <div class="field">
+      <label for="note">备注</label>
+      <input id="note" name="note" value="{{.Tx.Note}}" placeholder="这笔钱花在哪，可不填">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>凭证截图</label>
+    <div class="upload" data-upload>
+      <input type="file" name="files" accept="image/*" multiple data-upload-input>
+      <div class="upload-hint">拍照或选择图片，自动压缩；也可以拖进来</div>
+      <div class="thumbs" data-thumbs>
+        {{range .Tx.Attachments}}
+        <div class="thumb">
+          <a href="/media/{{.ObjectKey}}" target="_blank" rel="noopener"><img src="/media/{{.ObjectKey}}" alt="凭证" loading="lazy"></a>
+          <label class="thumb-del"><input type="checkbox" name="del_attach" value="{{.ID}}">删除</label>
+        </div>
+        {{end}}
+      </div>
+      <div class="thumbs" data-pending></div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">保存</button>
+    <a class="btn btn-ghost" href="/tx?month={{.Month}}">取消</a>
+  </div>
+</form>
+
+{{if .IsEdit}}
+<form class="danger-zone" method="post" action="/tx/{{.Tx.ID}}/delete" onsubmit="return confirm('删除这条流水？删除后可在备份里找回，但界面不再显示。')">
+  <input type="hidden" name="month" value="{{.Month}}">
+  <button class="btn btn-danger" type="submit">删除这条流水</button>
+</form>
+{{end}}
+{{end}}

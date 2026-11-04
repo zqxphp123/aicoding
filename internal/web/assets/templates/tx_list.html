@@ -1,0 +1,65 @@
+{{define "content"}}
+<div class="page-head">
+  <div>
+    <h1>流水</h1>
+    <p class="sub">{{monthlabel .Month}} · 共 {{.Count}} 笔</p>
+  </div>
+  <form class="month-form" method="get" action="/tx">
+    <input type="month" name="month" value="{{.Month}}" onchange="this.form.submit()" aria-label="选择月份">
+  </form>
+</div>
+
+<form class="filters" method="get" action="/tx">
+  <input type="hidden" name="month" value="{{.Month}}">
+  <div class="seg" role="group" aria-label="收支筛选">
+    <a class="seg-item {{if eq .Filters.Direction ""}}active{{end}}" href="/tx?month={{.Month}}">全部</a>
+    <a class="seg-item {{if eq .Filters.Direction "in"}}active{{end}}" href="/tx?month={{.Month}}&dir=in">收入</a>
+    <a class="seg-item {{if eq .Filters.Direction "out"}}active{{end}}" href="/tx?month={{.Month}}&dir=out">支出</a>
+  </div>
+  <select name="project" onchange="this.form.submit()" aria-label="按项目筛选">
+    <option value="">全部项目</option>
+    {{range .Projects}}<option value="{{.ID}}" {{if eq .ID $.Filters.ProjectID}}selected{{end}}>{{.Name}}</option>{{end}}
+  </select>
+  <select name="cat" onchange="this.form.submit()" aria-label="按分类筛选">
+    <option value="">全部分类</option>
+    {{range .Categories}}<option value="{{.ID}}" {{if eq .ID $.Filters.CategoryID}}selected{{end}}>{{if eq .Direction "in"}}收 · {{else}}支 · {{end}}{{.Name}}</option>{{end}}
+  </select>
+  <input type="search" name="q" value="{{.Filters.Q}}" placeholder="搜索备注或对方" aria-label="搜索">
+  {{if .Filters.NoProof}}<input type="hidden" name="noproof" value="1">{{end}}
+  <button class="btn" type="submit">筛选</button>
+</form>
+
+{{if .Filters.NoProof}}
+<div class="notice">
+  正在只看「未上传凭证」的支出。
+  <a href="/tx?month={{.Month}}&dir={{.Filters.Direction}}">取消筛选</a>
+</div>
+{{end}}
+
+<div class="summary-bar">
+  <span>收入 <b class="in">¥{{money .Summary.In}}</b></span>
+  <span>支出 <b class="out">¥{{money .Summary.Out}}</b></span>
+  <span>结余 <b class="{{if neg .Summary.Net}}out{{else}}in{{end}}">¥{{money .Summary.Net}}</b></span>
+</div>
+
+{{if .Groups}}
+  <div class="day-groups">
+    {{range .Groups}}
+    <section class="day-group">
+      <header class="day-head">
+        <span class="day-date">{{datecn .Date}}<small>{{weekdaycn .Date}}</small></span>
+        <span class="day-sum">
+          {{if .In}}<span class="in">+¥{{money .In}}</span>{{end}}
+          {{if .Out}}<span class="out">−¥{{money .Out}}</span>{{end}}
+        </span>
+      </header>
+      <div class="tx-list">{{range .Txs}}{{template "txrow-compact" .}}{{end}}</div>
+    </section>
+    {{end}}
+  </div>
+{{else}}
+  <div class="card">
+    {{template "empty" "这个筛选条件下没有记录"}}
+  </div>
+{{end}}
+{{end}}

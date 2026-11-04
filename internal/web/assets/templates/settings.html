@@ -1,0 +1,85 @@
+{{define "content"}}
+<div class="page-head">
+  <div>
+    <h1>设置</h1>
+    <p class="sub">{{.Book.Name}} · 数据在本机</p>
+  </div>
+</div>
+
+<section class="card">
+  <header class="card-head"><h2>账本</h2></header>
+  <div class="book-list">
+    {{range .Books}}
+    <div class="book-row {{if eq .ID $.Book.ID}}current{{end}}">
+      <div>
+        <div class="book-name">{{.Name}} {{if eq .ID $.Book.ID}}<span class="badge accent">当前</span>{{end}}</div>
+        <div class="muted small">{{if eq .Kind "project"}}工程账本 · 支持项目归集{{else}}个人账本 · 日常收支{{end}}</div>
+      </div>
+      {{if ne .ID $.Book.ID}}
+      <form method="post" action="/settings/book">
+        <input type="hidden" name="book_id" value="{{.ID}}">
+        <button class="btn btn-sm" type="submit">切换</button>
+      </form>
+      {{end}}
+    </div>
+    {{end}}
+  </div>
+
+  <form class="inline-form" method="post" action="/settings/book/new">
+    <input name="name" placeholder="新账本名称，如：2027 家庭账本" required>
+    <select name="kind" aria-label="账本类型">
+      <option value="personal">个人账本</option>
+      <option value="project">工程账本</option>
+    </select>
+    <button class="btn" type="submit">新建账本</button>
+  </form>
+</section>
+
+<section class="card">
+  <header class="card-head"><h2>分类</h2><span class="muted small">按当前账本</span></header>
+  <div class="cat-groups">
+    <div class="cat-group">
+      <h3>支出分类</h3>
+      <div class="chips">
+        {{range .Cats}}{{if eq .Direction "out"}}<span class="chip">{{.Name}}</span>{{end}}{{end}}
+      </div>
+    </div>
+    <div class="cat-group">
+      <h3>收入分类</h3>
+      <div class="chips">
+        {{range .Cats}}{{if eq .Direction "in"}}<span class="chip">{{.Name}}</span>{{end}}{{end}}
+      </div>
+    </div>
+  </div>
+  <form class="inline-form" method="post" action="/settings/category">
+    <select name="direction" aria-label="分类方向">
+      <option value="out">支出分类</option>
+      <option value="in">收入分类</option>
+    </select>
+    <input name="name" placeholder="新增分类名称" required maxlength="20">
+    <button class="btn" type="submit">添加</button>
+  </form>
+</section>
+
+<section class="card">
+  <header class="card-head"><h2>数据与备份</h2></header>
+  <dl class="kv">
+    <div><dt>数据目录</dt><dd class="mono">{{.DataDir}}</dd></div>
+    <div><dt>记录</dt><dd>{{.TxCount}} 笔流水 · {{.ProjCount}} 个项目 · {{.AttCount}} 张凭证</dd></div>
+    <div><dt>导出</dt><dd><a class="link" href="/export.csv?month={{.Month}}">导出本月流水 CSV</a>（Excel 可直接打开）</dd></div>
+  </dl>
+  <form method="post" action="/settings/backup" class="inline-form">
+    <button class="btn" type="submit">立即备份数据库</button>
+    <span class="muted small">备份保存在数据目录的 backups/ 下，自动保留最近 7 份</span>
+  </form>
+</section>
+
+<section class="card">
+  <header class="card-head"><h2>关于</h2></header>
+  <dl class="kv">
+    <div><dt>版本</dt><dd>v{{.Version}}</dd></div>
+    <div><dt>使用方式</dt><dd>浏览器打开即用；手机可「添加到主屏幕」，像 App 一样全屏使用。</dd></div>
+    <div><dt>隐私</dt><dd>没有账号、没有云同步，所有数据只写在上面那个数据目录里。</dd></div>
+  </dl>
+</section>
+{{end}}

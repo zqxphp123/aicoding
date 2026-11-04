@@ -1,0 +1,86 @@
+{{define "content"}}
+<div class="page-head">
+  <div>
+    <h1>{{if .IsEdit}}编辑项目{{else}}新建项目{{end}}</h1>
+    <p class="sub">{{.Book.Name}}</p>
+  </div>
+  <a class="link" href="/projects">返回项目</a>
+</div>
+
+{{if .Err}}<div class="alert" role="alert">{{.Err}}</div>{{end}}
+
+<form class="form card" method="post" action="{{if .IsEdit}}/projects/{{.Project.ID}}{{else}}/projects{{end}}">
+  <div class="field-row">
+    <div class="field field-grow">
+      <label for="name">项目名称 *</label>
+      <input id="name" name="name" value="{{.Project.Name}}" placeholder="如：滨江花园 3-2-501" required {{if not .IsEdit}}autofocus{{end}}>
+    </div>
+    <div class="field">
+      <label for="status">状态</label>
+      <select id="status" name="status">
+        <option value="signed" {{if eq .Project.Status "signed"}}selected{{end}}>已签单</option>
+        <option value="working" {{if eq .Project.Status "working"}}selected{{end}}>施工中</option>
+        <option value="done" {{if eq .Project.Status "done"}}selected{{end}}>已完工</option>
+        <option value="settled" {{if eq .Project.Status "settled"}}selected{{end}}>已结算</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="client_name">客户</label>
+      <input id="client_name" name="client_name" value="{{.Project.ClientName}}" placeholder="客户姓名">
+    </div>
+    <div class="field">
+      <label for="designer">设计师</label>
+      <input id="designer" name="designer" value="{{.Project.Designer}}" placeholder="设计师姓名">
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="contract_amount">合同金额</label>
+      <input id="contract_amount" name="contract_amount" inputmode="decimal" value="{{amount .Project.ContractAmount}}" placeholder="0.00">
+    </div>
+    <div class="field">
+      <label for="manager_name">项目经理</label>
+      <input id="manager_name" name="manager_name" value="{{.Project.ManagerName}}" placeholder="项目经理姓名">
+    </div>
+    <div class="field">
+      <label for="manager_amount">项目经理总包价</label>
+      <input id="manager_amount" name="manager_amount" inputmode="decimal" value="{{amount .Project.ManagerAmount}}" placeholder="0.00">
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="start_date">开工日期</label>
+      <input type="date" id="start_date" name="start_date" value="{{.Project.StartDate}}">
+    </div>
+    <div class="field">
+      <label for="planned_end_date">计划完工</label>
+      <input type="date" id="planned_end_date" name="planned_end_date" value="{{.Project.PlannedEndDate}}">
+    </div>
+    <div class="field">
+      <label for="actual_end_date">实际完工</label>
+      <input type="date" id="actual_end_date" name="actual_end_date" value="{{.Project.ActualEndDate}}">
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="note">备注</label>
+    <textarea id="note" name="note" rows="3" placeholder="工地地址、特殊约定等">{{.Project.Note}}</textarea>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">保存</button>
+    <a class="btn btn-ghost" href="{{if .IsEdit}}/projects/{{.Project.ID}}{{else}}/projects{{end}}">取消</a>
+  </div>
+</form>
+
+{{if .IsEdit}}
+<form class="danger-zone" method="post" action="/projects/{{.Project.ID}}/delete" onsubmit="return confirm('删除这个项目？项目下的流水会保留，但不再归属项目。')">
+  <button class="btn btn-danger" type="submit">删除项目</button>
+</form>
+{{end}}
+{{end}}
